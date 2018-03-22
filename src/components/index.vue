@@ -8,7 +8,7 @@
           <img src="../images/ruyi_logo_patient.png" alt="">
         </div>
         <div class="input-search">
-          <input type="text" value="搜索药品关键字···">
+          <input type="text" value="搜索关键字···">
         </div>
         <div class="btn">
           <a href="">登录</a>
@@ -31,8 +31,16 @@
         </CarouselItem>
       </Carousel>-->
       <swiper :options="bannerOption" ref="mySwiper">
-        <swiper-slide class="" v-for="item in bannerList" v-bind:key="item.id" data-swiper-autoplay="2000">
-          <div class=""><img v-bind:src="item.img_url" alt=""></div>
+        <swiper-slide class="" v-for="item in bannerList" v-bind:key="item.goodsID" data-swiper-autoplay="2000">
+          <!--:to 参数是对象的话 要加冒号，如果是普通的字符串就不用加了-->
+          <!--query写法会拼到url里?a=b&c=d ，params 的键值对在请求头header中可以查看到，不放在url中。-->
+          <router-link :to="{ name: 'goods', params: { id: item.goodsID }}"> <!--在url中参数不会显示出来,除非在路由配置里加上 path:'/goods：id'-->
+          <!--<router-link :to="{path:'/goods',query:{id:item.goodsID}}" >-->  <!--在url中会参数会显示出来-->
+
+            <div class="img-box">
+              <img v-bind:src="item.goodsBenUrl | bannerImgFirst" alt="item.goodsName">
+            </div>
+          </router-link>
         </swiper-slide>
         <div class="swiper-pagination" slot="pagination"></div>
       </swiper>
@@ -66,24 +74,6 @@
         </li>
       </ul>
     </nav>
-    <div style="background: #fff;">
-      <div class="rect-box">
-        你好
-      </div>
-      <div style="display:inline-block;padding:1rem;margin-left:1rem;border:1px solid #e0e3e6">
-        哈喽
-      </div>
-      <div class="border-1px" style="display:inline-block;padding:1rem;">
-        嘻嘻
-      </div>
-      <div class="test">
-        黑那个
-      </div>
-      <div style="border-bottom:1px solid #e0e3e6;">
-        草地就算分开了
-      </div>
-      <div>1</div>
-    </div>
 
     <!--如医云系统-->
     <section class="border-t-1px border-b-1px cloud-system">
@@ -259,18 +249,20 @@
   </div>
 </template>
 
-<script>
+<script type="text/ecmascript-6">
 
 
 
   import { swiper, swiperSlide } from 'vue-awesome-swiper'
   import Copyright from '@component/common/copyright'
+  import {https} from '../resource/https.js'
   export default {
     name: 'index',
     components: {
       swiper,
       swiperSlide,
-      copyright:Copyright
+      copyright:Copyright,
+      https
     },
     data() {
       return {
@@ -285,20 +277,7 @@
           arrow: 'never' // 左右箭头 hover悬停时显示 、always 一直显示、never 不显示
         },*/
         // 模拟后台返回数据
-        bannerList:[
-          {
-            id:'1',
-            img_url:'http://saas.c-doctor.com/statics/attachment/adv/201710191150244728.png',
-            name:'热销排行榜',
-            href:'http://wapsaas.c-doctor.com/goods_list_floor.html?floor_title=%E7%83%AD%E9%94%80%E6%8E%92%E8%A1%8C%E6%A6%9C&floor_name=tag&tag_id=566&image1=http://saas.c-doctor.com/statics/attachment/store/201705191759198903.png',
-          },
-          {
-            id:'2',
-            img_url:'http://saas.c-doctor.com/statics/attachment/adv/201712271400037137.png',
-            name:'不发货',
-            href:'#'
-          }
-        ],
+        bannerList: [],
         listImg:[
           {
             id:'1',
@@ -365,8 +344,14 @@
         return this.$refs.mySwiper.swiper
       }
     },
+    filters: {
+      bannerImgFirst(imgArr) { //  取banner 接口的第一个图片
+        imgArr = JSON.parse(imgArr);
+        return imgArr[0];
+      }
+    },
   // props: ['listImg'],
-    mounted() {
+    mounted() {// DOM加载完成
       var $body = $('body');
       var setCoverOpacity = function() {
         $body.find('.search-box-cover').css({
@@ -416,6 +401,15 @@
         }
       });*/
 
+    },
+    created() {
+      //首页banner图
+      https.getIndexBanner(this).then((data) => {
+        console.log('data的值',data.data);// 用data.data || data.body都可以取到参数值
+        this.bannerList = data.data;
+      },(res) => {
+        console.log('失败',res);
+      })
     }
 
   }

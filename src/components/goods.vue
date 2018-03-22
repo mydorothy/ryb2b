@@ -230,6 +230,9 @@
         $('.select_goods').slideDown(300);
       },
     },
+    created() {
+      console.log('router的值：',this.$route)
+    },
     mounted() {
 
     }

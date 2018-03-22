@@ -54,6 +54,22 @@
   }
 }
 
+.banner {
+  .img-box {
+    height: 11rem;
+    text-align: center;
+    img {
+      display:inline-block;
+      vertical-align: middle;
+      position: absolute;
+      margin:auto;
+      left:0;
+      top:0;
+      right:0;
+      bottom:0;
+    }
+  }
+}
 
 .nav {
   background:#fff;
